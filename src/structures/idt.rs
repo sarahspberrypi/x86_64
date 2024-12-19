@@ -300,7 +300,7 @@ pub struct InterruptDescriptorTable {
     pub page_fault: Entry<PageFaultHandlerFunc>,
 
     /// vector nr. 15
-    reserved_1: Entry<HandlerFunc>,
+    pub reserved_1: Entry<HandlerFunc>,
 
     /// The x87 Floating-Point Exception-Pending exception (`#MF`) is used to handle unmasked x87
     /// floating-point exceptions. In 64-bit mode, the x87 floating point unit is not used
@@ -361,7 +361,7 @@ pub struct InterruptDescriptorTable {
     pub cp_protection_exception: Entry<HandlerFuncWithErrCode>,
 
     /// vector nr. 22-27
-    reserved_2: [Entry<HandlerFunc>; 6],
+    pub reserved_2: [Entry<HandlerFunc>; 6],
 
     /// The Hypervisor Injection Exception (`#HV`) is injected by a hypervisor
     /// as a doorbell to inform an `SEV-SNP` enabled guest running with the
@@ -421,7 +421,7 @@ pub struct InterruptDescriptorTable {
     pub security_exception: Entry<HandlerFuncWithErrCode>,
 
     /// vector nr. 31
-    reserved_3: Entry<HandlerFunc>,
+    pub reserved_3: Entry<HandlerFunc>,
 
     /// User-defined interrupts can be initiated either by system logic or software. They occur
     /// when:
@@ -511,14 +511,15 @@ impl InterruptDescriptorTable {
     pub unsafe fn load_unsafe(&self) {
         use crate::instructions::tables::lidt;
         unsafe {
-            lidt(&self.pointer());
+            let ptr = self.pointer();
+            lidt(&ptr);
         }
     }
 
     /// Creates the descriptor pointer for this table. This pointer can only be
     /// safely used if the table is never modified or destroyed while in use.
     #[cfg(all(feature = "instructions", target_arch = "x86_64"))]
-    fn pointer(&self) -> crate::structures::DescriptorTablePointer {
+    pub fn pointer(&self) -> crate::structures::DescriptorTablePointer {
         use core::mem::size_of;
         crate::structures::DescriptorTablePointer {
             base: VirtAddr::new(self as *const _ as u64),

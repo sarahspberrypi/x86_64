@@ -60,7 +60,7 @@ impl PartialEq for Entry {
 impl Eq for Entry {}
 
 impl fmt::Debug for Entry {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
         // Display inner value as hex
         write!(f, "Entry({:#018x})", self.raw())
     }

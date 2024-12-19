@@ -72,7 +72,7 @@ impl PageTableEntry {
         } else if self.flags().contains(PageTableFlags::HUGE_PAGE) {
             Err(FrameError::HugeFrame)
         } else {
-            Ok(PhysFrame::containing_address(self.addr()))
+            Ok(PhysFrame::containing_address(PhysAddr::new(self.addr().as_u64() % (1 << 47)))) // this doesn't overwrite the actual physical address but rather the corresponding virtual address
         }
     }
 
@@ -148,6 +148,8 @@ bitflags! {
         const BIT_10 =          1 << 10;
         /// Available to the OS, can be used to store additional data, e.g. custom flags.
         const BIT_11 =          1 << 11;
+        /// C-Bit for SEV
+        const C_BIT_51 =        1 << 51;
         /// Available to the OS, can be used to store additional data, e.g. custom flags.
         const BIT_52 =          1 << 52;
         /// Available to the OS, can be used to store additional data, e.g. custom flags.
